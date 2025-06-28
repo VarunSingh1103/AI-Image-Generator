@@ -7,32 +7,23 @@ const countSelect = document.getElementById("count-select");
 const ratioSelect = document.getElementById("ratio-select");
 const gridGallery = document.querySelector(".gallery-grid");
 
-const API_KEY = "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";
+const API_KEY = "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"; // Keep this private!
 
 const examplePrompts = [
   "A magic forest with glowing plants and fairy homes among giant mushrooms",
-  "An old steampunk airship floating through golden clouds at sunset",
-  "A future Mars colony with glass domes and gardens against red mountains",
-  "A dragon sleeping on gold coins in a crystal cave",
-  "An underwater kingdom with merpeople and glowing coral buildings",
   "A floating island with waterfalls pouring into clouds below",
-  "A witch's cottage in fall with magic herbs in the garden",
   "A robot painting in a sunny studio with art supplies around it",
-  "A magical library with floating glowing books and spiral staircases",
-  "A Japanese shrine during cherry blossom season with lanterns and misty mountains",
-  "A cosmic beach with glowing sand and an aurora in the night sky",
-  "A medieval marketplace with colorful tents and street performers",
-  "A cyberpunk city with neon signs and flying cars at night",
-  "A peaceful bamboo forest with a hidden ancient temple",
-  "A giant turtle carrying a village on its back in the ocean",
-  "A fantasy tavern filled with elves, dwarves, and glowing potions",
-  "A neon-lit street in a futuristic Tokyo with holograms everywhere",
   "A surreal dreamscape with floating clocks and melting buildings",
-  "An enchanted meadow with unicorns and rainbow-colored skies",
-  "A time-travel machine workshop built inside an ancient pyramid"
+  "An underwater kingdom with merpeople and glowing coral buildings",
+  "A cosmic beach with glowing sand and an aurora in the night sky",
+  "A cyberpunk city with neon signs and flying cars at night",
+  "A medieval marketplace with colorful tents and street performers",
+  "A futuristic Tokyo street with rain and holographic ads",
+  "A fantasy tavern filled with elves, dwarves, and glowing potions",
+  "A giant turtle carrying a village on its back in the ocean",
+  "An enchanted meadow with unicorns and rainbow-colored skies"
 ];
 
-// Initialize theme
 (() => {
   const savedTheme = localStorage.getItem("theme");
   const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -78,7 +69,7 @@ const generateImages = async (model, imageCount, aspectRatio, prompt) => {
           parameters: {
             width,
             height,
-            seed: Math.floor(Math.random() * 100000) // <-- make each image different
+            seed: Math.floor(Math.random() * 100000)
           }
         })
       });
