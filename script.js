@@ -7,21 +7,24 @@ const countSelect = document.getElementById("count-select");
 const ratioSelect = document.getElementById("ratio-select");
 const gridGallery = document.querySelector(".gallery-grid");
 
-const API_KEY = "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"; // Keep this private!
+const API_KEY = "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";
 
 const examplePrompts = [
-  "A magic forest with glowing plants and fairy homes among giant mushrooms",
-  "A floating island with waterfalls pouring into clouds below",
-  "A robot painting in a sunny studio with art supplies around it",
-  "A surreal dreamscape with floating clocks and melting buildings",
-  "An underwater kingdom with merpeople and glowing coral buildings",
-  "A cosmic beach with glowing sand and an aurora in the night sky",
-  "A cyberpunk city with neon signs and flying cars at night",
-  "A medieval marketplace with colorful tents and street performers",
-  "A futuristic Tokyo street with rain and holographic ads",
-  "A fantasy tavern filled with elves, dwarves, and glowing potions",
-  "A giant turtle carrying a village on its back in the ocean",
-  "An enchanted meadow with unicorns and rainbow-colored skies"
+  "A futuristic samurai standing on a neon-lit rooftop in Tokyo during a rainy night",
+  "A floating castle made of crystal hovering above a waterfall in a fantasy world",
+  "A cozy cabin in the middle of a glowing enchanted forest under northern lights",
+  "A cybernetic owl perched on a tree made of circuits in a digital jungle",
+  "A peaceful alien village on a lavender-colored moon with twin suns in the sky",
+  "A giant whale flying through a cloudy sky with lanterns hanging from its fins",
+  "A post-apocalyptic desert city with rusted towers and glowing mushrooms",
+  "A steampunk dragon soaring through the clouds near a clocktower city",
+  "A deep-sea diver discovering an ancient temple surrounded by glowing jellyfish",
+  "A magical library with floating books and staircases leading into the stars",
+  "A snow-covered village during Christmas with warm glowing lights and carolers",
+  "A Viking ship sailing through the aurora borealis above icy mountains",
+  "A retro diner floating in space orbiting a colorful gas planet",
+  "A warrior cat in armor riding a fire-breathing lizard through a canyon",
+  "A painter robot on Mars creating a canvas of Earth in the red sunset sky"
 ];
 
 (() => {
@@ -38,18 +41,15 @@ const toggleTheme = () => {
   themeToggle.querySelector("i").className = isDark ? "fa-solid fa-sun" : "fa-solid fa-moon";
 };
 
-const getImageDimensions = (aspectRatio, baseSize = 512) => {
-  const [width, height] = aspectRatio.split("/").map(Number);
-  const scaleFactor = baseSize / Math.sqrt(width * height);
-  let calculatedWidth = Math.round(width * scaleFactor);
-  let calculatedHeight = Math.round(height * scaleFactor);
-  calculatedWidth = Math.floor(calculatedWidth / 16) * 16;
-  calculatedHeight = Math.floor(calculatedHeight / 16) * 16;
-  return { width: calculatedWidth, height: calculatedHeight };
+const getImageDimensions = (aspectRatio) => {
+  const [w, h] = aspectRatio.split("/").map(Number);
+  const scale = 512 / Math.sqrt(w * h);
+  const width = Math.floor((w * scale) / 8) * 8;
+  const height = Math.floor((h * scale) / 8) * 8;
+  return { width, height };
 };
 
 const generateImages = async (model, imageCount, aspectRatio, prompt) => {
-  const MODEL_URL = `https://api-inference.huggingface.co/models/${model}`;
   const { width, height } = getImageDimensions(aspectRatio);
   const cards = document.querySelectorAll(".img-card");
 
@@ -58,7 +58,7 @@ const generateImages = async (model, imageCount, aspectRatio, prompt) => {
     const statusText = card.querySelector(".status-text");
 
     try {
-      const res = await fetch(MODEL_URL, {
+      const res = await fetch(`https://api-inference.huggingface.co/models/${model}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${API_KEY}`,
@@ -68,23 +68,22 @@ const generateImages = async (model, imageCount, aspectRatio, prompt) => {
           inputs: prompt,
           parameters: {
             width,
-            height,
-            seed: Math.floor(Math.random() * 100000)
+            height
+          },
+          options: {
+            wait_for_model: true
           }
         })
       });
 
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(errorText);
-      }
+      if (!res.ok) throw new Error(await res.text());
 
       const blob = await res.blob();
       const imageUrl = URL.createObjectURL(blob);
 
       card.classList.remove("loading");
       card.innerHTML = `
-        <img src="${imageUrl}" alt="AI Image">
+        <img src="${imageUrl}" alt="AI Image" />
         <div class="img-overlay">
           <a href="${imageUrl}" download class="img-download-btn">
             <i class="fa-solid fa-download"></i>
@@ -92,10 +91,10 @@ const generateImages = async (model, imageCount, aspectRatio, prompt) => {
         </div>
       `;
     } catch (err) {
-      console.error("Image error:", err.message);
       card.classList.remove("loading");
       card.classList.add("error");
       statusText.textContent = "❌ Failed to generate image";
+      console.error(err);
     }
   }
 };
@@ -120,17 +119,17 @@ const createImageCards = (model, imageCount, aspectRatio, prompt) => {
 
 const handleFormSubmit = (e) => {
   e.preventDefault();
-  const selectedModel = modelSelect.value;
-  const imageCount = parseInt(countSelect.value) || 1;
-  const aspectRatio = ratioSelect.value || "1/1";
+  const model = modelSelect.value;
+  const count = parseInt(countSelect.value) || 1;
+  const ratio = ratioSelect.value || "1/1";
   const prompt = promptInput.value.trim();
-  if (!selectedModel || !prompt) return alert("Please select model and enter a prompt.");
-  createImageCards(selectedModel, imageCount, aspectRatio, prompt);
+  if (!model || !prompt) return alert("Please select model and enter a prompt.");
+  createImageCards(model, count, ratio, prompt);
 };
 
 promptBtn.addEventListener("click", () => {
-  const randomPrompt = examplePrompts[Math.floor(Math.random() * examplePrompts.length)];
-  promptInput.value = randomPrompt;
+  const random = examplePrompts[Math.floor(Math.random() * examplePrompts.length)];
+  promptInput.value = random;
   promptInput.focus();
 });
 
